@@ -21,10 +21,6 @@ spec:
       - name: mysql
         image: {{ .Values.image.repo }}/rs-mysql-db:{{ .Values.image.version }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # added for Istio
-        securityContext:
-          capabilities:
-            add: ["NET_ADMIN"]
         ports:
         - containerPort: 3306
         resources:
