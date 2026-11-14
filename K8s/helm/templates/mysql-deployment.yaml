@@ -21,12 +21,18 @@ spec:
       - name: mysql
         image: {{ .Values.image.repo }}/rs-mysql-db:{{ .Values.image.version }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/bin/sh", "-ec"]
+        args:
+          - |
+            ulimit -n 65536
+            echo "MySQL effective nofile limit: $(ulimit -n)"
+            exec docker-entrypoint.sh mysqld
         ports:
         - containerPort: 3306
         resources:
           limits:
             cpu: 200m
-            memory: 1024Mi
+            memory: 2Gi
           requests:
             cpu: 100m
             memory: 700Mi

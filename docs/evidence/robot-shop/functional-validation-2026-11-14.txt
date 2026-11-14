@@ -1,0 +1,21 @@
+Robot Shop — Local Functional Validation
+Date: 2026-11-14
+Environment: Kind / kind-capstone-local
+Namespace: robot-shop
+
+PASS: Product categories and catalogue load
+PASS: Product details display correctly
+PASS: Product can be added to cart
+PASS: Cart displays correct quantities and totals
+PASS: Shipping and checkout options load
+
+Cart verification:
+Product: Stan
+Unit price: EUR 67.00
+Quantity: 6
+Expected total: EUR 402.00
+Actual total: EUR 402.00
+Included VAT: EUR 67.00
+
+Result: 5/5 functional tests passed
+Note: No real payment transaction was performed.
