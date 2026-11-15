@@ -1,0 +1,148 @@
+{
+  "id": null,
+  "uid": "robotshop-rabbitmq",
+  "title": "Robot Shop - RabbitMQ Overview",
+  "tags": ["robot-shop", "rabbitmq", "devops-capstone"],
+  "timezone": "browser",
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Messages Received / sec",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "sum(rate(rabbitmq_global_messages_received_total{job=\"robot-shop-rabbitmq\",protocol=\"amqp091\"}[5m]))",
+        "legendFormat": "Received/sec"
+      }]
+    },
+    {
+      "id": 2,
+      "title": "Messages Routed / sec",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "sum(rate(rabbitmq_global_messages_routed_total{job=\"robot-shop-rabbitmq\",protocol=\"amqp091\"}[5m]))",
+        "legendFormat": "Routed/sec"
+      }]
+    },
+    {
+      "id": 3,
+      "title": "Messages Delivered / sec",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "sum(rate(rabbitmq_global_messages_delivered_total{job=\"robot-shop-rabbitmq\",protocol=\"amqp091\"}[5m]))",
+        "legendFormat": "Delivered/sec"
+      }]
+    },
+    {
+      "id": 4,
+      "title": "Messages Ready in Queue",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "rabbitmq_queue_messages_ready{job=\"robot-shop-rabbitmq\"}",
+        "legendFormat": "Ready"
+      }]
+    },
+    {
+      "id": 5,
+      "title": "Unacknowledged Messages",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "rabbitmq_queue_messages_unacked{job=\"robot-shop-rabbitmq\"}",
+        "legendFormat": "Unacknowledged"
+      }]
+    },
+    {
+      "id": 6,
+      "title": "Active Consumers",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "rabbitmq_consumers{job=\"robot-shop-rabbitmq\"}",
+        "legendFormat": "Consumers"
+      }]
+    },
+    {
+      "id": 7,
+      "title": "Message Redelivery / sec",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 24, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "sum(rate(rabbitmq_global_messages_redelivered_total{job=\"robot-shop-rabbitmq\",protocol=\"amqp091\"}[5m]))",
+        "legendFormat": "Redelivered/sec"
+      }]
+    },
+    {
+      "id": 8,
+      "title": "Unroutable Messages / sec",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 12, "y": 24, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "sum(rate(rabbitmq_global_messages_unroutable_dropped_total{job=\"robot-shop-rabbitmq\",protocol=\"amqp091\"}[5m])) + sum(rate(rabbitmq_global_messages_unroutable_returned_total{job=\"robot-shop-rabbitmq\",protocol=\"amqp091\"}[5m]))",
+        "legendFormat": "Unroutable/sec"
+      }]
+    },
+    {
+      "id": 9,
+      "title": "RabbitMQ Connections",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 32, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "rabbitmq_connections{job=\"robot-shop-rabbitmq\"}",
+        "legendFormat": "Connections"
+      }]
+    },
+    {
+      "id": 10,
+      "title": "RabbitMQ Memory Usage",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 12, "y": 32, "w": 12, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "rabbitmq_process_resident_memory_bytes{job=\"robot-shop-rabbitmq\"}",
+        "legendFormat": "Memory"
+      }]
+    },
+    {
+      "id": 11,
+      "title": "Robot Shop Cart Activity",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 40, "w": 24, "h": 8},
+      "targets": [{
+        "refId": "A",
+        "expr": "sum(rate(items_added{job=\"robot-shop-cart\"}[5m]))",
+        "legendFormat": "Items added/sec"
+      }]
+    }
+  ]
+}

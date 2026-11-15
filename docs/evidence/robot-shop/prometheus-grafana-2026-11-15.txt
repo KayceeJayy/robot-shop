@@ -1,0 +1,50 @@
+Robot Shop — Prometheus and Grafana Deployment Validation
+Date: 2026-11-15
+Environment: Kind / kind-capstone-local
+
+PROMETHEUS:
+  Helm chart: prometheus-community/prometheus
+  Chart version: 29.47.2
+  Application version: 3.16.0
+  Namespace: monitoring
+  Status: deployed
+  Persistent storage: 2Gi
+  Storage class: standard
+
+GRAFANA:
+  Helm chart: grafana-community/grafana
+  Chart version: 14.4.1
+  Application version: 13.3.1
+  Namespace: monitoring
+  Status: deployed
+  Persistent storage: 1Gi
+  Storage class: standard
+
+MONITORING COMPONENTS:
+  Prometheus server: 2/2 Running
+  Alertmanager: 2/2 Running
+  Node Exporter: 1/1 Running
+  Kube State Metrics: 1/1 Running
+  Grafana: 1/1 Running
+
+DATA COLLECTION:
+  PASS: Robot Shop cart scrape target UP
+  PASS: Robot Shop RabbitMQ scrape target UP
+  PASS: Cart metric items_added available
+  PASS: RabbitMQ metrics available
+
+GRAFANA DASHBOARD:
+  Name: Robot Shop - RabbitMQ Overview
+  UID: robotshop-rabbitmq
+  Panels: 11
+  PASS: Dashboard imported
+  PASS: All 11 panels verified
+
+INTEGRATION:
+  PASS: Grafana health endpoint HTTP 200
+  PASS: Prometheus datasource configured
+  PASS: Robot Shop metrics accessible through Grafana
+
+Result:
+  Local Prometheus and Grafana monitoring deployment
+  successfully validated.

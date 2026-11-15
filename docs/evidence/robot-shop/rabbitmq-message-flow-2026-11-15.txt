@@ -1,0 +1,48 @@
+Robot Shop — RabbitMQ Message Flow Validation
+Date: 2026-11-15
+Environment: Kind / kind-capstone-local
+Namespace: robot-shop
+
+Queue:
+  Name: orders
+  Messages ready: 0
+  Messages unacknowledged: 0
+  Active consumers: 1
+
+Consumer:
+  Consumer tag: ctag-dispatch-1
+  Acknowledgement required: false
+  Acknowledgement mode: Automatic
+  Prefetch count: 0
+  Active: true
+
+Payment-to-RabbitMQ:
+  PASS: Payment service published an order.
+  PASS: RabbitMQ authenticated the payment service.
+  PASS: RabbitMQ received and routed the message.
+
+RabbitMQ-to-Dispatch:
+  PASS: One active dispatch consumer.
+  PASS: Message delivery observed in Prometheus.
+  PASS: Dispatch logged the received order.
+
+Prometheus:
+  Messages received: approximately 1
+  Messages routed: approximately 1
+  Messages delivered: approximately 1
+  Explicit acknowledgements: 0
+  Queue messages ready: 0
+  Queue messages unacknowledged: 0
+
+Interpretation:
+  Dispatch uses automatic acknowledgement.
+  Zero explicit acknowledgements is consistent with this
+  consumer configuration.
+
+Result:
+  RabbitMQ message-flow integration verified.
+  Automatic acknowledgement behaviour documented.
+
+Note:
+  This validation does not establish at-least-once delivery
+  guarantees. No real payment transaction was performed.

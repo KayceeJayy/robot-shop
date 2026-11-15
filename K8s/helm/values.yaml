@@ -45,7 +45,7 @@ mysql: {}
 payment:
   # Alternative payment gateway URL
   # Default is https://www.paypal.com
-  gateway: null
+  gateway: https://example.com/
   #gateway: https://www.worldpay.com
 
 rabbitmq: {}
