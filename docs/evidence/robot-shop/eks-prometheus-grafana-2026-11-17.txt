@@ -1,0 +1,30 @@
+Robot Shop — EKS Prometheus/Grafana Evidence
+2026-11-17T11:25:04+01:00
+
+NAME         	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+observability	monitoring	1       	2026-11-17 11:02:07.479792212 +0100 WAT	deployed	kube-prometheus-stack-93.3.1	v0.95.2
+
+NAME                                                     READY   STATUS    RESTARTS   AGE
+alertmanager-observability-kube-prometh-alertmanager-0   2/2     Running   0          21m
+observability-grafana-758b796c46-zzflv                   3/3     Running   0          21m
+observability-kube-prometh-operator-5457b8b4bd-8tjmb     1/1     Running   0          21m
+observability-kube-state-metrics-548bdffb9b-w2qmw        1/1     Running   0          21m
+observability-prometheus-node-exporter-45ggt             1/1     Running   0          21m
+observability-prometheus-node-exporter-g44pw             1/1     Running   0          21m
+observability-prometheus-node-exporter-z8w9j             1/1     Running   0          21m
+prometheus-observability-kube-prometh-prometheus-0       2/2     Running   0          21m
+
+NAME                                                                     VERSION              DESIRED   READY   RECONCILED   AVAILABLE   AGE
+prometheus.monitoring.coreos.com/observability-kube-prometh-prometheus   v3.16.0-distroless   1         1       True         True        21m
+
+NAME                                                                         VERSION   REPLICAS   READY   RECONCILED   AVAILABLE   AGE
+alertmanager.monitoring.coreos.com/observability-kube-prometh-alertmanager   v0.35.0   1          1       True         True        21m
+
+NAME                            DATA   AGE   LABELS
+robot-shop-rabbitmq-dashboard   1      12m   grafana_dashboard=1
+
+Verified Prometheus query results:
+up{job="robot-shop-cart"} = 1
+up{job="robot-shop-rabbitmq"} = 1
+items_added = 350
+Grafana sidecar reloaded dashboards successfully: HTTP 200
