@@ -1,0 +1,100 @@
+# Capstone 2 - Robot Shop logs to Loki
+# Collects only robot-shop namespace container logs.
+
+kind: DaemonSet
+
+testFramework:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 30m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 384Mi
+
+luaScripts:
+  normalize_level.lua: |
+    function normalize_level(tag, timestamp, record)
+      local k = record["kubernetes"]
+
+      if type(k) == "table" then
+        record["namespace"] = k["namespace_name"] or "unknown"
+        local labels = k["labels"] or {}
+        record["service"] = labels["service"] or k["container_name"] or "unknown"
+      else
+        record["namespace"] = "unknown"
+        record["service"] = "unknown"
+      end
+
+      local level = record["level"] or record["severity"]
+
+      if type(level) == "number" then
+        if level >= 50 then
+          level = "error"
+        elseif level >= 40 then
+          level = "warn"
+        elseif level >= 30 then
+          level = "info"
+        else
+          level = "debug"
+        end
+      elseif type(level) == "string" then
+        level = string.lower(level)
+        if level == "warning" then level = "warn" end
+        if level == "fatal" or level == "critical" then level = "error" end
+      else
+        local message = string.lower(tostring(record["log"] or ""))
+        if message:find("error", 1, true) then
+          level = "error"
+        elseif message:find("warn", 1, true) then
+          level = "warn"
+        elseif message:find("info", 1, true) then
+          level = "info"
+        else
+          level = "unknown"
+        end
+      end
+
+      record["log_level"] = tostring(level)
+      return 1, timestamp, record
+    end
+
+config:
+  inputs: |
+    [INPUT]
+        Name tail
+        Path /var/log/containers/*_robot-shop_*.log
+        Tag kube.*
+        multiline.parser docker, cri
+        Mem_Buf_Limit 5MB
+        Skip_Long_Lines On
+        Read_from_Head Off
+        Refresh_Interval 5
+
+  filters: |
+    [FILTER]
+        Name kubernetes
+        Match kube.*
+        Merge_Log On
+        Keep_Log On
+        K8S-Logging.Parser Off
+        K8S-Logging.Exclude Off
+
+    [FILTER]
+        Name lua
+        Match kube.*
+        Script /fluent-bit/scripts/normalize_level.lua
+        Call normalize_level
+
+  outputs: |
+    [OUTPUT]
+        Name loki
+        Match kube.*
+        Host loki-gateway.monitoring.svc.cluster.local
+        Port 80
+        URI /loki/api/v1/push
+        Labels job=robot-shop,namespace=$namespace,service=$service,level=$log_level
+        Line_Format json
+        Retry_Limit False

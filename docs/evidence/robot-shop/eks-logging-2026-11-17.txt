@@ -1,0 +1,34 @@
+Capstone 2 — Loki and Fluent Bit Deployment Evidence
+2026-11-17T12:28:08+01:00
+
+===== HELM RELEASES =====
+NAME            	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART                               	APP VERSION
+loki            	monitoring	1       	2026-11-17 12:09:08.275563549 +0100 WAT	deployed	loki-21.2.3                         	3.7.10
+observability   	monitoring	1       	2026-11-17 11:02:07.479792212 +0100 WAT	deployed	kube-prometheus-stack-93.3.1        	v0.95.2
+robotshop-logs  	monitoring	1       	2026-11-17 12:16:53.787230495 +0100 WAT	deployed	fluent-bit-0.58.3                   	5.1.3
+robotshop-probes	monitoring	1       	2026-11-17 11:28:34.92453395 +0100 WAT 	deployed	prometheus-blackbox-exporter-11.21.3	v0.29.1
+
+===== FLUENT BIT =====
+NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+robotshop-logs-fluent-bit   3         3         3       3            3           <none>          11m
+
+===== LOKI PODS =====
+NAME     READY   STATUS    RESTARTS   AGE
+loki-0   2/2     Running   0          18m
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+loki-gateway   1/1     1            1           18m
+
+===== PERSISTENT STORAGE =====
+NAME             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+storage-loki-0   Bound    pvc-72257a34-2392-42a3-9192-6ad854f98ad5   8Gi        RWO            gp3            <unset>                 19m
+
+===== GRAFANA DATASOURCE =====
+NAME                         DATA   AGE
+robot-shop-loki-datasource   1      96s
+
+===== VERIFIED LOG SEARCHES =====
+Loki API: HTTP 200
+{job="robot-shop"}: 9 matching streams
+{job="robot-shop",service="cart"}: 20 log entries
+{job="robot-shop",level="error"}: 3 matching streams
+Known limitation: fallback log-level classification may contain false positives.
