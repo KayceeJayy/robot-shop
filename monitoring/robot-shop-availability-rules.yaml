@@ -1,0 +1,56 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: robot-shop-availability-slo
+  namespace: monitoring
+  labels:
+    release: observability
+    app: robot-shop
+spec:
+  groups:
+    - name: robot-shop-availability
+      interval: 30s
+      rules:
+        - record: robot_shop_web:synthetic_availability:ratio24h
+          expr: |
+            avg_over_time(
+              probe_success{job="robot-shop-blackbox",service="web"}[24h]
+            )
+
+        - record: robot_shop_web:synthetic_error_budget_remaining:ratio24h
+          expr: |
+            clamp_min(
+              1 - (
+                (1 - robot_shop_web:synthetic_availability:ratio24h)
+                / 0.005
+              ),
+              0
+            )
+
+        - alert: RobotShopWebUnavailable
+          expr: |
+            probe_success{job="robot-shop-blackbox",service="web"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            team: devops-capstone
+            service: web
+          annotations:
+            summary: Robot Shop Web synthetic availability failure
+            description: Web HTTP probe has failed for at least one minute.
+            runbook_url: https://github.com/KayceeJayy/robot-shop/blob/feature/eks-observability/docs/runbooks/robot-shop-web-unavailable.md
+
+        - alert: RobotShopWebProbeMissing
+          expr: |
+            absent_over_time(
+              probe_success{job="robot-shop-blackbox",service="web"}[3m]
+            )
+          for: 2m
+          labels:
+            severity: warning
+            team: devops-capstone
+            service: web
+          annotations:
+            summary: Robot Shop Web probe data missing
+            description: No Web synthetic probe samples for three minutes.
+            runbook_url: https://github.com/KayceeJayy/robot-shop/blob/feature/eks-observability/docs/runbooks/robot-shop-web-unavailable.md
