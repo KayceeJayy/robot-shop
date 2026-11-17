@@ -39,6 +39,7 @@ The 17 November EKS evidence snapshot recorded three Ready worker nodes, all 12 
 - Validating an OpenTelemetry-to-Jaeger trace pipeline for an isolated Payment test workload.
 - Defining an availability SLI, SLO, and error-budget policy.
 - Triggering a controlled Web outage, confirming Prometheus alert evaluation and Alertmanager receipt, and restoring service manually.
+- Routing critical capstone alerts to Slack and verifying delivery with a synthetic notification.
 - Maintaining a runbook, timestamped evidence, and a blameless postmortem.
 
 ## Architecture
@@ -68,7 +69,7 @@ flowchart TD
     Metrics --> Prometheus
     Prometheus --> Grafana[Grafana dashboards]
     Prometheus --> Alertmanager[Alertmanager]
-    Alertmanager -. "Slack delivery pending configuration" .-> Slack[Slack channel]
+    Alertmanager -->|critical capstone alerts| Slack[Slack #random notifications]
     App --> FluentBit[Fluent Bit DaemonSet]
     FluentBit --> Loki[Loki]
     Loki --> Grafana
@@ -185,6 +186,12 @@ The Prometheus rule file defines:
 It also records the rolling availability ratio and remaining error-budget ratio.
 
 The policy pauses nonessential releases when 25% or less of the error budget remains and freezes risky changes when the budget is exhausted. Emergency security fixes remain subject to risk review.
+
+### Slack notification delivery
+
+Alertmanager routing is configured in `monitoring/robot-shop-alertmanager-slack.yaml`. It routes critical alerts labeled `team=devops-capstone` to the workspace's `#random` channel. The incoming webhook URL is stored in the Kubernetes Secret `robot-shop-slack-webhook`; the URL itself is not stored in Git.
+
+**Verification:** On 17 November 2026, a synthetic `RobotShopSlackIntegrationTest` alert was submitted to Alertmanager (HTTP 200), and its notification appeared in Slack `#random`. This verifies the configured Alertmanager-to-Slack delivery path. It was a synthetic integration test, not a newly triggered application outage.
 
 **Measurement caveat:** this SLI measures internal synthetic endpoint availability. It does not measure all customer requests, checkout success, or payment success. A short demonstration does not establish sustained compliance with a full 24-hour SLO window.
 
@@ -312,6 +319,15 @@ helm upgrade --install robotshop-logs fluent/fluent-bit \
   -f monitoring/fluent-bit-values.yaml
 
 kubectl apply -f monitoring/robot-shop-availability-rules.yaml
+
+# Create the webhook Secret securely; never commit the URL to Git.
+read -rsp "Slack webhook URL: " SLACK_WEBHOOK
+echo
+printf '%s' "$SLACK_WEBHOOK" | kubectl -n monitoring create secret generic robot-shop-slack-webhook \
+  --from-file=url=/dev/stdin --dry-run=client -o yaml | kubectl apply -f -
+unset SLACK_WEBHOOK
+kubectl apply -f monitoring/robot-shop-alertmanager-slack.yaml
+
 kubectl apply -f monitoring/loki-datasource-configmap.yaml
 kubectl apply -f monitoring/http-synthetic-dashboard-configmap.json
 kubectl apply -f monitoring/rabbitmq-dashboard-configmap.json
@@ -348,6 +364,7 @@ Use the service name and port shown by Kubernetes for Grafana, Prometheus, Alert
 │   ├── dashboards/            # Version-controlled Grafana dashboards
 │   ├── *-values.yaml          # EKS monitoring chart values
 │   ├── otel-collector.yaml    # OpenTelemetry Collector resources
+│   ├── robot-shop-alertmanager-slack.yaml # Alertmanager-to-Slack routing
 │   ├── payment-trace-validation.yaml
 │   └── robot-shop-availability-rules.yaml
 └── docs/
@@ -369,6 +386,7 @@ monitoring/prometheus-values.yaml and monitoring/grafana-values.yaml describe th
 | Fluent Bit and Loki | DaemonSet 3/3 Ready; Loki API HTTP 200; log searches returned results | [Logging evidence](docs/evidence/robot-shop/eks-logging-2026-11-17.txt) |
 | Payment trace pipeline | Jaeger trace API HTTP 200; one span from isolated validation workload | [Tracing evidence](docs/evidence/robot-shop/payment-tracing-2026-11-17.md) |
 | Availability incident drill | Prometheus alert fired; Alertmanager received it; manual recovery and probe recovery verified | [Incident timeline](docs/evidence/robot-shop/incident-20261117T172805Z/timeline.txt) |
+| Slack notification integration | Synthetic Alertmanager test accepted (HTTP 200); notification observed in Slack #random | `monitoring/robot-shop-alertmanager-slack.yaml` and operator verification on 17 November 2026 |
 
 ## Known limitations and production-readiness gaps
 
@@ -376,7 +394,7 @@ This is a learning and demonstration environment, not a production-ready referen
 
 - Synthetic HTTP probes do not replace real request-level metrics, distributed request tracing, or customer-experience monitoring.
 - The 99.5% SLO is a defined target; the available short test window does not prove sustained 24-hour compliance.
-- Slack delivery is pending a configured and verified Alertmanager receiver. Do not treat Alertmanager receipt as proof of Slack delivery.
+- Slack delivery was verified with a synthetic alert. The actual Web outage alert was not re-triggered after Slack integration, so a live incident notification remains to be tested.
 - The recovery-guard automation was faulty during the incident drill; manual recovery worked.
 - The Payment trace was isolated validation, contained one verified span, and was not a complete checkout trace.
 - Jaeger trace storage is ephemeral.
