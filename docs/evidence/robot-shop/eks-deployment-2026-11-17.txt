@@ -12,7 +12,7 @@ ip-172-31-36-113.eu-north-1.compute.internal   Ready    <none>   2d8h   v1.36.5-
 
 ===== HELM RELEASE =====
 NAME      	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART           	APP VERSION
-robot-shop	robot-shop	1       	2026-11-17 10:08:24.975212848 +0100 WAT	deployed	robot-shop-1.1.0	           
+robot-shop	robot-shop	1       	2026-11-17 10:08:24.975212848 +0100 WAT	deployed	robot-shop-1.1.0
 
 ===== APPLICATION WORKLOADS =====
 NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
