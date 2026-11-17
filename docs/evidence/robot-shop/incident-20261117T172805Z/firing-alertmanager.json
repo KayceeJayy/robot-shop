@@ -1,0 +1,39 @@
+[
+  {
+    "annotations": {
+      "description": "Web HTTP probe has failed for at least one minute.",
+      "runbook_url": "https://github.com/KayceeJayy/robot-shop/blob/feature/eks-observability/docs/runbooks/robot-shop-web-unavailable.md",
+      "summary": "Robot Shop Web synthetic availability failure"
+    },
+    "endsAt": "2026-11-17T17:34:18.335Z",
+    "fingerprint": "2b37d7847f6a9f52",
+    "receivers": [
+      {
+        "name": "null"
+      }
+    ],
+    "startsAt": "2026-11-17T17:30:18.335Z",
+    "status": {
+      "inhibitedBy": [],
+      "mutedBy": [],
+      "silencedBy": [],
+      "state": "active"
+    },
+    "updatedAt": "2026-11-17T17:30:18.337Z",
+    "generatorURL": "http://observability-kube-prometh-prometheus.monitoring:9090/graph?g0.expr=probe_success%7Bjob%3D%22robot-shop-blackbox%22%2Cservice%3D%22web%22%7D+%3D%3D+0&g0.tab=1",
+    "labels": {
+      "alertname": "RobotShopWebUnavailable",
+      "container": "blackbox-exporter",
+      "endpoint": "http",
+      "instance": "http://web.robot-shop.svc.cluster.local:8080/",
+      "job": "robot-shop-blackbox",
+      "namespace": "monitoring",
+      "pod": "robot-shop-blackbox-5c645b4c78-dhsht",
+      "prometheus": "monitoring/observability-kube-prometh-prometheus",
+      "service": "web",
+      "severity": "critical",
+      "target": "web",
+      "team": "devops-capstone"
+    }
+  }
+]

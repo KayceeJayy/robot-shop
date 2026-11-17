@@ -1,0 +1,22 @@
+2026-11-17T17:28:19.997634+00:00 PASS: Web baseline=1; in-cluster recovery guard active
+2026-11-17T17:28:29.618376+00:00 PASS: Web synthetic probe healthy; Alertmanager reachable
+2026-11-17T17:28:29.618694+00:00 DRILL: scaling Web from one replica to zero
+2026-11-17T17:28:35.550119+00:00 probe=1 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:28:45.901202+00:00 probe=1 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:28:57.171662+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:29:07.815976+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:29:17.953598+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:29:29.835827+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:29:40.153858+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:29:51.003066+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:30:01.347678+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:30:11.713161+00:00 probe=0 prometheus_firing=False alertmanager_received=False
+2026-11-17T17:30:22.429358+00:00 probe=0 prometheus_firing=True alertmanager_received=True
+2026-11-17T17:30:22.429724+00:00 PASS: Prometheus fired; Alertmanager received alert
+2026-11-17T17:30:22.429780+00:00 RECOVERY: restoring Web to one replica
+2026-11-17T17:30:30.774505+00:00 deployment.apps/web scaled
+2026-11-17T17:30:33.548610+00:00 deployment "web" successfully rolled out
+2026-11-17T17:30:33.548995+00:00 PASS: Web Deployment restored
+2026-11-17T17:30:51.445290+00:00 PASS: Web synthetic probe recovered
+2026-11-17T17:30:51.477147+00:00 Evidence directory: /home/lael/projects/devops-capstone/robot-shop/docs/evidence/robot-shop/incident-20261117T172805Z
+2026-11-17T17:30:51.477514+00:00 DRILL COMPLETED: alert and recovery evidence collected

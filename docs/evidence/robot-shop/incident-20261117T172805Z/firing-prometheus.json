@@ -1,0 +1,29 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "ALERTS",
+          "alertname": "RobotShopWebUnavailable",
+          "alertstate": "firing",
+          "container": "blackbox-exporter",
+          "endpoint": "http",
+          "instance": "http://web.robot-shop.svc.cluster.local:8080/",
+          "job": "robot-shop-blackbox",
+          "namespace": "monitoring",
+          "pod": "robot-shop-blackbox-5c645b4c78-dhsht",
+          "service": "web",
+          "severity": "critical",
+          "target": "web",
+          "team": "devops-capstone"
+        },
+        "value": [
+          1794936621.43,
+          "1"
+        ]
+      }
+    ]
+  }
+}
