@@ -1,0 +1,50 @@
+Robot Shop Slack Notification Integration
+2026-11-17T19:26:43+01:00
+
+===== ALERTMANAGER CONFIGURATION =====
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"monitoring.coreos.com/v1alpha1","kind":"AlertmanagerConfig","metadata":{"annotations":{},"name":"robot-shop-slack","namespace":"monitoring"},"spec":{"receivers":[{"name":"robot-shop-slack","slackConfigs":[{"apiURL":{"key":"url","name":"robot-shop-slack-webhook"},"sendResolved":true,"text":"{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}","title":"Robot Shop: {{ .CommonLabels.alertname }}"}]}],"route":{"groupBy":["alertname"],"groupInterval":"1m","groupWait":"5s","matchers":[{"matchType":"=","name":"team","value":"devops-capstone"},{"matchType":"=","name":"severity","value":"critical"}],"receiver":"robot-shop-slack","repeatInterval":"4h"}}}
+  creationTimestamp: "2026-11-17T18:21:53Z"
+  generation: 1
+  name: robot-shop-slack
+  namespace: monitoring
+  resourceVersion: "879364"
+  uid: 99e3a7b0-55b7-4f1f-955b-a382bd3a555c
+spec:
+  receivers:
+  - name: robot-shop-slack
+    slackConfigs:
+    - apiURL:
+        key: url
+        name: robot-shop-slack-webhook
+      sendResolved: true
+      text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+      title: 'Robot Shop: {{ .CommonLabels.alertname }}'
+  route:
+    groupBy:
+    - alertname
+    groupInterval: 1m
+    groupWait: 5s
+    matchers:
+    - matchType: =
+      name: team
+      value: devops-capstone
+    - matchType: =
+      name: severity
+      value: critical
+    receiver: robot-shop-slack
+    repeatInterval: 4h
+
+===== WEBHOOK SECRET METADATA =====
+NAME                       TYPE
+robot-shop-slack-webhook   Opaque
+
+===== DELIVERY VERIFICATION =====
+Alertmanager API response: HTTP 200
+Slack notification: Received in #random
+Test: RobotShopSlackIntegrationTest
+Test was synthetic; no application outage was triggered.

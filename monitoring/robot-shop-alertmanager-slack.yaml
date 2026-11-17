@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: robot-shop-slack
+  namespace: monitoring
+spec:
+  route:
+    receiver: robot-shop-slack
+    groupBy:
+      - alertname
+    groupWait: 5s
+    groupInterval: 1m
+    repeatInterval: 4h
+    matchers:
+      - name: team
+        matchType: "="
+        value: devops-capstone
+      - name: severity
+        matchType: "="
+        value: critical
+  receivers:
+    - name: robot-shop-slack
+      slackConfigs:
+        - apiURL:
+            name: robot-shop-slack-webhook
+            key: url
+          sendResolved: true
+          title: 'Robot Shop: {{ .CommonLabels.alertname }}'
+          text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
