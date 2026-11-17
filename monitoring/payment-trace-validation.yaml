@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-trace-validation
+  namespace: robot-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-trace-validation
+  template:
+    metadata:
+      labels:
+        app: payment-trace-validation
+    spec:
+      initContainers:
+        - name: install-otel
+          image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python:0.50b0
+          command:
+            - cp
+            - -r
+            - /autoinstrumentation/.
+            - /otel-auto-instrumentation-python
+          volumeMounts:
+            - name: otel
+              mountPath: /otel-auto-instrumentation-python
+
+        - name: install-compatible-protobuf
+          image: python:3.9-slim
+          command: ["sh", "-c"]
+          args:
+            - >-
+              python -m pip install --no-cache-dir --no-deps
+              --target /otel-python-deps protobuf==3.20.3 &&
+              printf 'from pkgutil import extend_path\n__path__ = extend_path(__path__, __name__)\n'
+              > /otel-python-deps/google/__init__.py
+          volumeMounts:
+            - name: otel-deps
+              mountPath: /otel-python-deps
+
+      containers:
+        - name: payment
+          image: robotshop/rs-payment:2.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["uwsgi"]
+          args:
+            - --ini
+            - payment.ini
+            - --enable-threads
+            - --lazy-apps
+            - --import
+            - opentelemetry.instrumentation.auto_instrumentation.sitecustomize
+          env:
+            - name: PAYMENT_GATEWAY
+              value: https://example.com/
+            - name: PYTHONPATH
+              value: /otel-python-deps:/otel-auto-instrumentation-python
+            - name: OTEL_SERVICE_NAME
+              value: robot-shop-payment-traced
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp
+            - name: OTEL_METRICS_EXPORTER
+              value: none
+            - name: OTEL_LOGS_EXPORTER
+              value: none
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: http/protobuf
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-collector.monitoring.svc.cluster.local:4318
+            - name: OTEL_TRACES_SAMPLER
+              value: always_on
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 400m
+              memory: 384Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - name: otel
+              mountPath: /otel-auto-instrumentation-python
+              readOnly: true
+            - name: otel-deps
+              mountPath: /otel-python-deps
+              readOnly: true
+            - name: otel-deps
+              mountPath: /usr/local/lib/python3.9/site-packages/google/protobuf
+              subPath: google/protobuf
+              readOnly: true
+
+      volumes:
+        - name: otel
+          emptyDir: {}
+        - name: otel-deps
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-trace-validation
+  namespace: robot-shop
+spec:
+  type: ClusterIP
+  selector:
+    app: payment-trace-validation
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

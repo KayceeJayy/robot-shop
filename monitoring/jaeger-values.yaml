@@ -1,0 +1,18 @@
+# Capstone 2 - Jaeger tracing backend
+# Single instance with ephemeral in-memory trace storage.
+# Internal Kubernetes access only.
+
+jaeger:
+  enabled: true
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  ingress:
+    enabled: false
